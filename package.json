@@ -2,7 +2,7 @@
   "name": "logic-board",
   "version": "1.0.3",
   "description": "Logic circuit simulator",
-  "main": "dist/index.ts",
+  "main": "dist/index.js",
   "repository": "https://github.com/Enapiuz/logic-board.git",
   "author": "Vadim Shashin <enapiuz@gmail.com>",
   "license": "MIT",
