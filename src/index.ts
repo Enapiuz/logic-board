@@ -1,2 +1,12 @@
-export {PortMap, Port, Basic} from "./basic"
-export {Element} from "./element"
+export * from "./basic";
+export * from "./element";
+export * from "./gate";
+export {AND} from "./gates/and";
+export {BUF} from "./gates/buf";
+export {NAND} from "./gates/nand";
+export {NOR} from "./gates/nor";
+export {NOT} from "./gates/not";
+export {OR} from "./gates/or";
+export {XNOR} from "./gates/xnor";
+export {XOR} from "./gates/xor";
+export {Errors} from "./error";
