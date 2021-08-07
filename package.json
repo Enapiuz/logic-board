@@ -12,7 +12,8 @@
     "compile:watch": "tsc -b --watch",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "prepublish": "yarn compile"
+    "prepublish": "yarn compile",
+    "clean": "rm -rf ./dist"
   },
   "devDependencies": {
     "@types/jest": "^26.0.24",
