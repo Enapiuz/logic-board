@@ -10,7 +10,7 @@
   "scripts": {
     "compile": "tsc -b",
     "compile:watch": "tsc -b --watch",
-    "test": "jest",
+    "test": "jest --maxWorkers=6",
     "test:watch": "jest --watchAll",
     "prepublish": "yarn compile",
     "clean": "rm -rf ./dist"
