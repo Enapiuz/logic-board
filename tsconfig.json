@@ -10,7 +10,8 @@
         "strict": true,
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
-        "downlevelIteration": true
+        "downlevelIteration": true,
+        "sourceMap": true
     },
     "exclude": ["node_modules", "dist"]
 }
