@@ -1,4 +1,4 @@
-import {Dataset} from "../../tests/types";
+import {Dataset} from "../test-types";
 import {BUF} from "./buf";
 
 describe("AND", () => {

@@ -1,8 +1,9 @@
 import {Element} from "./element";
 import {BUF} from "./gates/buf";
-import {Dataset} from "./types";
+import {Dataset} from "./test-types";
 
 describe("Element", () => {
+    // Basic test that it just works
     class BufElem extends Element {
         formBoard() {
             this.addElement("buf", new BUF());
