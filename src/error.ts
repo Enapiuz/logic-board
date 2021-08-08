@@ -2,6 +2,7 @@ export enum Errors {
     WRONG_INPUT,
     INVALID_TRUTH_TABLE,
     CYCLIC_CIRCUIT,
+    INPUT_DOES_NOT_EXIST,
 }
 
 export class CircuitError extends Error {

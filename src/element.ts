@@ -120,7 +120,9 @@ export abstract class Element extends Basic {
             // ioPort.elementPort - port on element to assign input value to
             // ioPort.elementName - to which element assign input value
             const ioPort = this.inputs.get(inputPort) as IOPort;
-            // TODO: validate if input exists
+            if (!inputs.has(inputPort)) {
+                throw CircuitError.withCode(Errors.INPUT_DOES_NOT_EXIST);
+            }
             const inputValue = inputs.get(inputPort) as boolean;
             const inputElement = this.elements.get(
                 ioPort.elementName
