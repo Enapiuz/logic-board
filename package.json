@@ -2,11 +2,11 @@
   "name": "logic-board",
   "version": "1.1.2",
   "description": "Logic circuit simulator",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "repository": "https://github.com/Enapiuz/logic-board.git",
   "author": "Vadim Shashin <enapiuz@gmail.com>",
   "license": "MIT",
-  "types": "dist/index.d.ts",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "compile": "tsc -b",
     "compile:watch": "tsc -b --watch",
