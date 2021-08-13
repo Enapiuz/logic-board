@@ -1,12 +1,23 @@
-export * from "./basic";
-export * from "./element";
-export * from "./gate";
-export {AND} from "./gates/and";
-export {BUF} from "./gates/buf";
-export {NAND} from "./gates/nand";
-export {NOR} from "./gates/nor";
-export {NOT} from "./gates/not";
-export {OR} from "./gates/or";
-export {XNOR} from "./gates/xnor";
-export {XOR} from "./gates/xor";
+import {AND} from "./gates/and";
+import {BUF} from "./gates/buf";
+import {NAND} from "./gates/nand";
+import {NOR} from "./gates/nor";
+import {NOT} from "./gates/not";
+import {OR} from "./gates/or";
+import {XNOR} from "./gates/xnor";
+import {XOR} from "./gates/xor";
+
+export {Basic, Port, PortMap} from "./basic";
+export {Element} from "./element";
 export {Errors} from "./error";
+
+export const gate = {
+    AND: () => new AND(),
+    BUF: () => new BUF(),
+    NAND: () => new NAND(),
+    NOR: () => new NOR(),
+    NOT: () => new NOT(),
+    OR: () => new OR(),
+    XNOR: () => new XNOR(),
+    XOR: () => new XOR(),
+};
