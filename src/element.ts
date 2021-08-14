@@ -30,16 +30,23 @@ const defaultOptions: ElementOptions = {
 };
 
 export abstract class Element extends Basic {
+    private options: ElementOptions = defaultOptions;
     private elements: Map<string, ElementWithState> = new Map();
     private connections: Array<Connection> = [];
-
     private inputs: Map<Port, IOPort> = new Map();
     private outputs: Map<Port, IOPort> = new Map();
 
-    constructor(protected options: ElementOptions = defaultOptions) {
+    constructor() {
         super();
         this.formBoard();
         // TODO: validate connections
+    }
+
+    protected setOptions(options: ElementOptions): void {
+        this.options = {
+            ...this.options,
+            ...options,
+        };
     }
 
     protected addElement(name: string, element: Basic): void {
