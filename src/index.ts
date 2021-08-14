@@ -1,3 +1,4 @@
+import {MemoryCell} from "./complex/memory_cell";
 import {AND} from "./gates/and";
 import {BUF} from "./gates/buf";
 import {NAND} from "./gates/nand";
@@ -20,4 +21,8 @@ export const gate = {
     OR: () => new OR(),
     XNOR: () => new XNOR(),
     XOR: () => new XOR(),
+};
+
+export const complex = {
+    MemoryCell: () => new MemoryCell(),
 };
