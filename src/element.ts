@@ -20,6 +20,15 @@ export type IOPort = {
     elementPort: Port;
 };
 
+export type ElementOptions = {
+    // Element will save output state between evaluations.
+    preserveState: boolean;
+};
+
+const defaultOptions: ElementOptions = {
+    preserveState: false,
+};
+
 export abstract class Element extends Basic {
     private elements: Map<string, ElementWithState> = new Map();
     private connections: Array<Connection> = [];
@@ -27,7 +36,7 @@ export abstract class Element extends Basic {
     private inputs: Map<Port, IOPort> = new Map();
     private outputs: Map<Port, IOPort> = new Map();
 
-    constructor() {
+    constructor(protected options: ElementOptions = defaultOptions) {
         super();
         this.formBoard();
         // TODO: validate connections
@@ -105,7 +114,9 @@ export abstract class Element extends Basic {
 
     public eval(inputs: PortMap): PortMap {
         // reset state
-        // this.resetState();
+        if (!this.options.preserveState) {
+            this.resetState();
+        }
 
         // init queue, such a complicated thing
         const q: string[] = [];
