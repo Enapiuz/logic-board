@@ -35,6 +35,11 @@ export abstract class Element extends Basic {
     private connections: Array<Connection> = [];
     private inputs: Map<Port, IOPort> = new Map();
     private outputs: Map<Port, IOPort> = new Map();
+    private prefills: Array<{
+        elementName: string;
+        elementPort: Port;
+        value: boolean;
+    }> = [];
 
     constructor() {
         super();
@@ -93,10 +98,11 @@ export abstract class Element extends Basic {
         elementPort: Port,
         value: boolean
     ): void {
-        (this.elements.get(elementName) as ElementWithState).inputState.set(
+        this.prefills.push({
+            elementName,
             elementPort,
-            value
-        );
+            value,
+        });
     }
 
     // Where to create and connect all the elements
@@ -124,6 +130,13 @@ export abstract class Element extends Basic {
         if (!this.options.preserveState) {
             this.resetState();
         }
+
+        this.prefills.forEach((prefill) => {
+            const el = this.elements.get(
+                prefill.elementName
+            ) as ElementWithState;
+            el.inputState.set(prefill.elementPort, prefill.value);
+        });
 
         // init queue, such a complicated thing
         const q: string[] = [];
