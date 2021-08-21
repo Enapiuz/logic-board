@@ -30,13 +30,14 @@ export class ChipBuilder {
         let currentInputPort = 0;
         let currentOutputPort = 0;
 
+        const resolvedFilename = path.resolve(this.lookupPath, filename);
         const data = fs
-            .readFileSync(path.resolve(filename), "utf-8")
+            .readFileSync(resolvedFilename, "utf-8")
             .replace(/\s*\-\>/g, ":");
         const obj: Chip = yaml.load(data) as Chip;
 
-        // 1. Loading all found references
-        Object.entries(obj.Elements).forEach(([block, data]) => {
+        // Loading all found references
+        Object.entries(obj.Elements).forEach(([_block, data]) => {
             const elementRef = (data.match(/[a-zA-Z0-9]+/) || [])[0];
             if (!knownElements.has(elementRef)) {
                 const refFilename = path.resolve(
@@ -48,6 +49,7 @@ export class ChipBuilder {
                 );
             }
         });
+
         // Find and load all references if necessary
         const element = new ConstructableElement();
         Object.entries(obj.Elements || {}).forEach(
