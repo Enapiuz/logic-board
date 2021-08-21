@@ -3,6 +3,8 @@ export enum Errors {
     INVALID_TRUTH_TABLE,
     CYCLIC_CIRCUIT,
     INPUT_DOES_NOT_EXIST,
+    CANT_LOAD_CHIP,
+    CHANGING_ELEMENT_AFTER_FIRST_EVAL_NOT_ALLOWED,
 }
 
 export class CircuitError extends Error {

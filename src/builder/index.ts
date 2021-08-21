@@ -4,8 +4,7 @@ import path from "path";
 import {gate} from "..";
 import {Basic} from "../basic";
 import {MemoryCell} from "../complex/memory_cell";
-import {Element} from "../element";
-import {ElementConstructor} from "../element_constructor";
+import {Element, ConstructableElement} from "../element";
 import {CircuitError, Errors} from "../error";
 import {AND} from "../gates/and";
 import {BUF} from "../gates/buf";
@@ -34,19 +33,28 @@ export class ChipBuilder {
             .readFileSync(path.resolve(filename), "utf-8")
             .replace(/\s*\-\>/g, ":");
         const obj: Chip = yaml.load(data) as Chip;
-        console.log(obj);
+
         // 1. Loading all found references
         Object.entries(obj.Elements).forEach(([block, data]) => {
             const elementRef = (data.match(/[a-zA-Z0-9]+/) || [])[0];
+            if (!knownElements.has(elementRef)) {
+                const refFilename = path.resolve(
+                    this.lookupPath,
+                    `${elementRef}.elem`
+                );
+                knownElements.set(elementRef, () =>
+                    this.buildFromFile(refFilename)
+                );
+            }
         });
         // Find and load all references if necessary
-        const element = new ElementConstructor();
-        Object.entries(obj.Elements).forEach(
+        const element = new ConstructableElement();
+        Object.entries(obj.Elements || {}).forEach(
             ([namePrefix, componentAndAmount]) => {
                 // Parse exact component name and needed amount
                 const res = /(.+)\[([0-9]+)\]/.exec(componentAndAmount);
                 if (res == null) {
-                    throw CircuitError.withCode(Errors.WRONG_INPUT);
+                    throw CircuitError.withCode(Errors.CANT_LOAD_CHIP);
                 }
                 const elemName = res[1];
                 const elemCount = Number(res[2]);
@@ -61,7 +69,7 @@ export class ChipBuilder {
         );
 
         // Add inputs (create bufs for them and connect immediately)
-        Object.entries(obj.Inputs).forEach(([namePrefix, amount]) => {
+        Object.entries(obj.Inputs || {}).forEach(([namePrefix, amount]) => {
             for (let i = 1; i <= amount; i++) {
                 element.addElement(`${namePrefix}${i}`, gate.BUF());
                 element.addInput(currentInputPort, `${namePrefix}${i}`, 0);
@@ -70,7 +78,7 @@ export class ChipBuilder {
         });
 
         // Add outputs
-        Object.entries(obj.Outputs).forEach(
+        Object.entries(obj.Outputs || {}).forEach(
             ([elementAndAmount, elementPort]) => {
                 // parse elem range
                 const {
@@ -78,7 +86,6 @@ export class ChipBuilder {
                 } = /(?<chip>[a-zA-Z0-9]+)\[(?<start>\d+)\.*(?<end>\d*)*\]/.exec(
                     elementAndAmount
                 ) as any;
-                console.log([chip, start, end]);
 
                 const trueEnd = end ?? start;
                 for (let i = start; i <= trueEnd; i++) {
@@ -93,8 +100,7 @@ export class ChipBuilder {
         );
 
         // Add connections (for inputs connect with bufs)
-        Object.entries(obj.Connections).forEach(([from, to]) => {
-            console.log([from, to]);
+        Object.entries(obj.Connections || {}).forEach(([from, to]) => {
             const reg =
                 /(?<chip>[a-zA-Z0-9]+)\[(?<start>\d+)\.*(?<end>\d*)*\]\((?<pin>\d+)\)/;
 
@@ -106,31 +112,57 @@ export class ChipBuilder {
             const {
                 groups: {chip: chipT, start: startT, end: endT, pin: pinT},
             } = reg.exec(to) as any;
+
             const trueEndT = endT ?? startT;
-
             const startRange = trueEndF - startF + 1;
-            const endRange = trueEndT - endT + 1;
-
+            const endRange = trueEndT - startT + 1;
             const realRange = startRange > endRange ? startRange : endRange;
 
-            console.log([startRange, endRange, realRange]);
-            const fromList = Array(realRange);
-            const toList = Array(realRange);
+            const filler = (
+                start: number,
+                to: number,
+                length: number
+            ): number[] => {
+                let currNum = start;
+                const result: number[] = [];
+                for (let i = 0; i < length; i++) {
+                    result.push(Number(currNum));
+                    if (start < to) {
+                        currNum++;
+                    }
+                }
+                return result;
+            };
+            const fromList = filler(startF, endF, realRange);
+            const toList = filler(startT, endT, realRange);
 
-            // FIXME: doesn't work here yet
-            let t = startT;
-            for (let i = startF; i <= trueEndF; i++) {
+            for (let i = 0; i < realRange; i++) {
+                const fromElemNum = fromList[i];
+                const toElemNum = toList[i];
                 element.addConnection(
-                    `${chipF}${i}`,
+                    `${chipF}${fromElemNum}`,
                     pinF,
-                    `${chipT}${t}`,
+                    `${chipT}${toElemNum}`,
                     pinT
                 );
-                if (t < trueEndT) {
-                    t++;
-                }
             }
         });
+
+        // Add prefills
+        Object.entries(obj.Prefills || {}).forEach(
+            ([elementsAndPort, value]) => {
+                console.log([elementsAndPort, value]);
+                const reg =
+                    /(?<chip>[a-zA-Z0-9]+)\[(?<start>\d+)\.*(?<end>\d*)*\]\((?<pin>\d+)\)/;
+                const {
+                    groups: {chip, start, end, pin},
+                } = reg.exec(elementsAndPort) as any;
+                const realEnd = end ?? start;
+                for (let i = start; i <= realEnd; i++) {
+                    element.prefillValue(`${chip}${i}`, pin, value);
+                }
+            }
+        );
 
         // console.log(element);
         return element;
@@ -167,5 +199,8 @@ export type Chip = {
     };
     Outputs: {
         [key: string]: number;
+    };
+    Prefills: {
+        [key: string]: boolean;
     };
 };
