@@ -1,0 +1,16 @@
+Options:
+    PreserveState: true
+
+Inputs:
+    Data: 16  # amount of inputs, 16 of them
+    WriteFlag: 1  # one input, 17 in total
+
+Elements:
+    Cell: MemoryCell[16]
+
+Connections:
+    Data[1..16](0) -> Cell[1..16](0)  # one to one
+    WriteFlag[1](0) -> Cell[1..16](1)  # one to all
+
+Outputs:
+    Cell[1..16]: 0
