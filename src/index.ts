@@ -23,6 +23,8 @@ export const gate = {
     XOR: () => new XOR(),
 };
 
+export {ChipBuilder} from "./builder";
+
 export const complex = {
     MemoryCell: () => new MemoryCell(),
 };

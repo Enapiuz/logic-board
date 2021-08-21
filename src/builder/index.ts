@@ -19,6 +19,7 @@ export type ElementCreator = () => Basic;
 
 const knownElements = new Map<string, ElementCreator>();
 
+// TODO: add validations!
 export class ChipBuilder {
     constructor(protected lookupPath: string) {
         this.loadBasicElements();
