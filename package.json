@@ -1,6 +1,6 @@
 {
   "name": "logic-board",
-  "version": "2.0.1-beta",
+  "version": "2.0.2-beta",
   "description": "Logic circuit simulator",
   "main": "dist/src/index.js",
   "repository": "https://github.com/Enapiuz/logic-board.git",
