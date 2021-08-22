@@ -66,7 +66,7 @@ export class ChipDefinitionParser {
         } = /(?<name>\w+)\s*\,\s*(?<amount>\d+)/.exec(line) as any;
         const result = [];
         for (let i = 0; i < amount; i++) {
-            result.push({name});
+            result.push({name: `${name}${i + 1}`});
         }
         return result;
     }
@@ -79,7 +79,10 @@ export class ChipDefinitionParser {
             line
         ) as any;
         for (let i = 0; i < amount; i++) {
-            res.push({internalName, elementName: chipName});
+            res.push({
+                internalName: `${internalName}${i + 1}`,
+                elementName: chipName,
+            });
         }
         return res;
     }
@@ -91,20 +94,72 @@ export class ChipDefinitionParser {
         const {
             groups: {chip: chipF, start: startF, end: endF, pin: pinF},
         } = reg.exec(from) as any;
-        console.log([chipF, startF, endF, pinF]);
         const {
             groups: {chip: chipT, start: startT, end: endT, pin: pinT},
         } = reg.exec(to) as any;
-        console.log([chipT, startT, endT, pinT]);
-        return [];
+
+        const trueEndF = endF ?? startF;
+        const trueEndT = endT ?? startT;
+        const startRange = trueEndF - startF + 1;
+        const endRange = trueEndT - startT + 1;
+        const realRange = startRange > endRange ? startRange : endRange;
+
+        const filler = (
+            start: number,
+            to: number,
+            length: number
+        ): number[] => {
+            let currNum = start;
+            const result: number[] = [];
+            for (let i = 0; i < length; i++) {
+                result.push(Number(currNum));
+                if (start < to) {
+                    currNum++;
+                }
+            }
+            return result;
+        };
+
+        const fromList = filler(startF, endF, realRange);
+        const toList = filler(startT, endT, realRange);
+
+        const res: Connection[] = [];
+        for (let i = 0; i < realRange; i++) {
+            const fromElemNum = fromList[i];
+            const toElemNum = toList[i];
+            res.push({
+                sourceChipName: `${chipF}${fromElemNum}`,
+                sourceChipPin: pinF,
+                destChipName: `${chipT}${toElemNum}`,
+                destChipPin: pinT,
+            });
+        }
+
+        return res;
     }
 
     protected parseOutputLine(line: string): Output[] {
-        return [];
+        const reg =
+            /(?<chip>[a-zA-Z0-9]+)\[(?<start>\d+)\.*(?<end>\d*)*\]\((?<pin>\d+)\)/;
+        const {
+            groups: {chip, start, end, pin},
+        } = reg.exec(line) as any;
+        const trueEnd = end ?? start;
+        const res: Output[] = [];
+        for (let i = start; i <= trueEnd; i++) {
+            res.push({
+                internalChipName: `${chip}${i}`,
+                chipPin: pin,
+            });
+        }
+        return res;
     }
 
     protected parseOptionLine(line: string): Option {
-        return {name: "test", value: false};
+        const {
+            groups: {param, value},
+        } = /(?<param>\w+)\s*\,\s*(?<value>true|false)/.exec(line) as any;
+        return {name: param, value: value === "true" ? true : false};
     }
 }
 
@@ -119,6 +174,7 @@ CONN: Data[1..16](0) -> Test[1..16](1) # asdasd
 CONN: Data[1..16](0) -> Cell[1..16](0)
 CONN: WriteFlag[1](0) -> Cell[1..16](1)
 OUT: Cell[1..16](0) # qweqwe
+OPTION: PreserveState, false
 `;
 const prsRes = prs.parse(input);
 console.log(prsRes);
