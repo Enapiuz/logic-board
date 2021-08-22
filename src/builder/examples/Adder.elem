@@ -1,0 +1,20 @@
+Options:
+    PreserveState: false
+
+Inputs:
+    A: 1  # amount of inputs, 16 of them
+    B: 1  # one input, 17 in total
+
+Elements:
+    And: AND[1]
+    Xor: XOR[1]
+
+Connections:
+    A[1](0) -> And[1](0)
+    A[1](0) -> Xor[1](0)
+    B[1](0) -> And[1](1)
+    B[1](0) -> Xor[1](1)
+
+Outputs:
+    Xor[1]: 0 # sum
+    And[1]: 0 # carry
